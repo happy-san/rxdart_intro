@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:rxdart/rxdart.dart';
 
 import 'form_model.dart' as f;
 
@@ -32,8 +31,7 @@ class FormViewModel {
     }
   }
 
-  Stream<bool> get canSubmitForm => CombineLatestStream(
-      [_form.ageStream], (values) => _ageValidator(values[0]));
+  Stream<bool> get canSubmitForm => isAgeValidStream;
 
   onSubmitPressed() => showDialog(
         context: _context,

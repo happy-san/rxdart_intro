@@ -14,13 +14,6 @@ class FormScreen extends StatefulWidget {
 class _FormScreenState extends State<FormScreen> {
   var _modelInitialized = false;
   late final FormViewModel _viewModel;
-  late final TextEditingController _ageController;
-
-  @override
-  void initState() {
-    super.initState();
-    _ageController = TextEditingController(text: '0');
-  }
 
   @override
   void didChangeDependencies() {
@@ -47,10 +40,7 @@ class _FormScreenState extends State<FormScreen> {
                 return Text('Current age is: ${snapshot.data}');
               },
             ),
-            TextField(
-              controller: _ageController,
-              onChanged: _viewModel.setAge,
-            ),
+            AgeTextField(viewModel: _viewModel),
             StreamBuilder<bool>(
               stream: _viewModel.canSubmitForm,
               builder: (context, snapshot) {
@@ -77,6 +67,68 @@ class _FormScreenState extends State<FormScreen> {
   void dispose() {
     super.dispose();
     _viewModel.dispose();
+  }
+}
+
+class AgeTextField extends StatefulWidget {
+  const AgeTextField({
+    Key? key,
+    required FormViewModel viewModel,
+  })  : _viewModel = viewModel,
+        super(key: key);
+
+  final FormViewModel _viewModel;
+
+  @override
+  State<AgeTextField> createState() => _AgeTextFieldState();
+}
+
+class _AgeTextFieldState extends State<AgeTextField> {
+  late final TextEditingController _ageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _ageController = TextEditingController();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return StreamBuilder<int>(
+      stream: widget._viewModel.ageStream,
+      builder: (context, snapshot) {
+        // Cursor won't jump around if value is updated from other sources.
+        if (snapshot.hasData) {
+          final selection = _ageController.selection;
+          _ageController.text = snapshot.data.toString();
+          try {
+            _ageController.selection = selection;
+          } catch (e) {
+            _ageController.selection =
+                TextSelection.collapsed(offset: _ageController.text.length);
+          }
+        }
+
+        return StreamBuilder<bool>(
+          stream: widget._viewModel.isAgeValidStream,
+          builder: (context, snapshot) {
+            return TextField(
+              controller: _ageController,
+              onChanged: widget._viewModel.setAge,
+              decoration: InputDecoration(
+                  errorText: snapshot.hasData && snapshot.data!
+                      ? null
+                      : 'Invalid age'),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
     _ageController.dispose();
   }
 }
