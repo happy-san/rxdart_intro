@@ -17,6 +17,9 @@ class FormViewModel {
 
   Stream<int> get ageStream => _form.ageStream;
 
+  Stream<bool> get isAgeValidStream =>
+      ageStream.map((age) => _ageValidator(age));
+
   incrementAge() => _form.ageSink.add(_form.age + 1);
 
   decrementAge() => _form.ageSink.add(_form.age - 1);
@@ -32,17 +35,17 @@ class FormViewModel {
   Stream<bool> get canSubmitForm => CombineLatestStream(
       [_form.ageStream], (values) => _ageValidator(values[0]));
 
-  bool _ageValidator(Object? age) {
-    final _age = int.tryParse(age.toString());
-    return _age != null && _age > 0;
-  }
-
   onSubmitPressed() => showDialog(
         context: _context,
         barrierDismissible: true,
         builder: (context) =>
             _getAlertDialog(context, title: 'Hey', body: 'Form submitted!'),
       );
+
+  bool _ageValidator(Object? age) {
+    final _age = int.tryParse(age.toString());
+    return _age != null && _age > 0;
+  }
 
   AlertDialog _getAlertDialog(BuildContext context,
           {required String title, required String body}) =>
