@@ -56,7 +56,7 @@ class _FormScreenState extends State<FormScreen> {
               builder: (context, snapshot) {
                 return ElevatedButton(
                   onPressed: (snapshot.hasData && snapshot.data!)
-                      ? _viewModel.onSubmitPressed()
+                      ? _viewModel.onSubmitPressed
                       : null,
                   child: const Text('Submit form'),
                 );
