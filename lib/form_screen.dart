@@ -13,13 +13,20 @@ class FormScreen extends StatefulWidget {
 
 class _FormScreenState extends State<FormScreen> {
   var _modelInitialized = false;
-  late final FormViewModel viewModel;
+  late final FormViewModel _viewModel;
+  late final TextEditingController _ageController;
+
+  @override
+  void initState() {
+    super.initState();
+    _ageController = TextEditingController(text: '0');
+  }
 
   @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     if (!_modelInitialized) {
-      viewModel = FormViewModel(context);
+      _viewModel = FormViewModel(context);
       _modelInitialized = true;
     }
   }
@@ -35,21 +42,21 @@ class _FormScreenState extends State<FormScreen> {
           mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
             StreamBuilder<int>(
-              stream: viewModel.ageStream,
+              stream: _viewModel.ageStream,
               builder: (context, snapshot) {
                 return Text('Current age is: ${snapshot.data}');
               },
             ),
             TextField(
-              controller: viewModel.ageController,
-              onChanged: viewModel.setAge,
+              controller: _ageController,
+              onChanged: _viewModel.setAge,
             ),
             StreamBuilder<bool>(
-              stream: viewModel.canSubmitForm,
+              stream: _viewModel.canSubmitForm,
               builder: (context, snapshot) {
                 return ElevatedButton(
                   onPressed: (snapshot.hasData && snapshot.data!)
-                      ? viewModel.onSubmitPressed()
+                      ? _viewModel.onSubmitPressed()
                       : null,
                   child: const Text('Submit form'),
                 );
@@ -59,7 +66,7 @@ class _FormScreenState extends State<FormScreen> {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: viewModel.incrementAge,
+        onPressed: _viewModel.incrementAge,
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ),
@@ -69,6 +76,7 @@ class _FormScreenState extends State<FormScreen> {
   @override
   void dispose() {
     super.dispose();
-    viewModel.dispose();
+    _viewModel.dispose();
+    _ageController.dispose();
   }
 }

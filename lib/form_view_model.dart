@@ -5,18 +5,14 @@ import 'form_model.dart' as f;
 
 class FormViewModel {
   late final f.Form _form;
-  late final TextEditingController ageController;
   final BuildContext _context;
 
   FormViewModel(this._context) {
     _form = f.Form();
-    ageController = TextEditingController();
-    _form.ageStream.listen(_updateAgeController).onError(_showErrorDialog);
   }
 
   dispose() {
     _form.dispose();
-    ageController.dispose();
   }
 
   Stream<int> get ageStream => _form.ageStream;
@@ -26,15 +22,12 @@ class FormViewModel {
   decrementAge() => _form.ageSink.add(_form.age - 1);
 
   setAge(String s) {
-    _ageValidator(s)
-        ? _form.ageSink.add(int.parse(s))
-        : _form.ageSink.addError(Exception('Invalid age!'));
-  }
-
-  _updateAgeController(int age) {
-    final s = age.toString();
-    ageController.text = s;
-    ageController.selection = TextSelection.collapsed(offset: s.length);
+    if (_ageValidator(s)) {
+      _form.ageSink.add(int.parse(s));
+    } else {
+      _showErrorDialog();
+      _form.ageSink.addError(Exception('Invalid age!'));
+    }
   }
 
   Stream<bool> get canSubmitForm => CombineLatestStream(
@@ -52,7 +45,7 @@ class FormViewModel {
             _getAlertDialog(context, title: 'Hey', body: 'Form submitted!'),
       );
 
-  void _showErrorDialog(err) => showDialog(
+  void _showErrorDialog() => showDialog(
         context: _context,
         barrierDismissible: true,
         builder: (context) => _getAlertDialog(context,
