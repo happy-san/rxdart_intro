@@ -25,7 +25,6 @@ class FormViewModel {
     if (_ageValidator(s)) {
       _form.ageSink.add(int.parse(s));
     } else {
-      _showErrorDialog();
       _form.ageSink.addError(Exception('Invalid age!'));
     }
   }
@@ -43,13 +42,6 @@ class FormViewModel {
         barrierDismissible: true,
         builder: (context) =>
             _getAlertDialog(context, title: 'Hey', body: 'Form submitted!'),
-      );
-
-  void _showErrorDialog() => showDialog(
-        context: _context,
-        barrierDismissible: true,
-        builder: (context) => _getAlertDialog(context,
-            title: 'Warning', body: 'Invalid age, please correct.'),
       );
 
   AlertDialog _getAlertDialog(BuildContext context,
