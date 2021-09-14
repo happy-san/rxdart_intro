@@ -86,6 +86,7 @@ class AgeTextField extends StatefulWidget {
 
 class _AgeTextFieldState extends State<AgeTextField> {
   late final TextEditingController _ageController;
+  var startedEditing = false;
 
   @override
   void initState() {
@@ -95,11 +96,14 @@ class _AgeTextFieldState extends State<AgeTextField> {
 
   @override
   Widget build(BuildContext context) {
+    print('started editing: $startedEditing');
+
     return StreamBuilder<int>(
       stream: widget._viewModel.ageStream,
       builder: (context, snapshot) {
         // Cursor won't jump around if value is updated from other sources.
         if (snapshot.hasData) {
+          print('agestream: ${snapshot.data}');
           final selection = _ageController.selection;
           _ageController.text = snapshot.data.toString();
           try {
@@ -112,15 +116,21 @@ class _AgeTextFieldState extends State<AgeTextField> {
 
         return StreamBuilder<bool>(
           stream: widget._viewModel.isAgeValidStream,
-          initialData: true,
           builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              print('isvalid: ${snapshot.data!}');
+            }
             return TextField(
               controller: _ageController,
-              onChanged: widget._viewModel.setAge,
+              onChanged: (s) {
+                widget._viewModel.setAge(s);
+                startedEditing = true;
+              },
               decoration: InputDecoration(
-                  errorText: snapshot.hasData && snapshot.data!
-                      ? null
-                      : 'Invalid age'),
+                  errorText:
+                      !startedEditing || snapshot.hasData && snapshot.data!
+                          ? null
+                          : 'Invalid age'),
             );
           },
         );
