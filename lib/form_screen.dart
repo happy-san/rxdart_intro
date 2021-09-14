@@ -43,6 +43,7 @@ class _FormScreenState extends State<FormScreen> {
             AgeTextField(viewModel: _viewModel),
             StreamBuilder<bool>(
               stream: _viewModel.canSubmitForm,
+              initialData: false,
               builder: (context, snapshot) {
                 return ElevatedButton(
                   onPressed: (snapshot.hasData && snapshot.data!)
@@ -111,6 +112,7 @@ class _AgeTextFieldState extends State<AgeTextField> {
 
         return StreamBuilder<bool>(
           stream: widget._viewModel.isAgeValidStream,
+          initialData: true,
           builder: (context, snapshot) {
             return TextField(
               controller: _ageController,
